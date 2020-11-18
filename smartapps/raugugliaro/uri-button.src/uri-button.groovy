@@ -41,6 +41,10 @@ def updated() {
 }
 */
 preferences {
+	section("Button"){
+    	input "theButton", "capability.button", required: true
+    }
+    
 	section("External Access"){
 		input "external_uri", "text", title: "External URI", required: false
 	}
@@ -61,7 +65,7 @@ preferences {
         capability "Button"
 	}
 
-
+/*
 	tiles {
 		standardTile("switch", "device.switch", width: 2, height: 2, canChangeIcon: true) {
 			state "off", label: 'Push', action: "momentary.push", backgroundColor: "#ffffff", nextState: "on"
@@ -70,6 +74,11 @@ preferences {
 		main "switch"
 		details "switch"
 	}
+*/
+
+def install() {
+	subscribe(theButton, "button.press", buttonPressHandler)
+}
 
 // parse events into attributes
 def parse(String description) {
@@ -77,7 +86,7 @@ def parse(String description) {
 }
 
 // handle commands
-def push() {
+def buttonPressHandler(evt) {
 	log.debug "Executing 'push'"
     if (external_uri){
 		// sendEvent(name: "switch", value: "on")
@@ -102,20 +111,21 @@ def push() {
 			}
 
 		def result = new physicalgraph.device.HubAction(
-				method: "GET",
+//				method: "GET",
+				method: "POST",
 				path: "${internal_path}",
 				headers: [
 				HOST: "${internal_ip}:${port}"
 				]
 				)
 			sendHubCommand(result)
-			log.debug "Executing ON" 
+			log.debug "Executing PUSH" 
 			log.debug result
 	}
-    sendEvent(name: "switch", value: "on", isStateChange: true, display: false)
-	sendEvent(name: "switch", value: "off", isStateChange: true, display: false)
-	sendEvent(name: "momentary", value: "pushed", isStateChange: true)
-    sendEvent(name: "button", value: "pushed", isStateChange: true, data: [buttonNumber: 1])
+//    sendEvent(name: "switch", value: "on", isStateChange: true, display: false)
+//	sendEvent(name: "switch", value: "off", isStateChange: true, display: false)
+//	sendEvent(name: "momentary", value: "pushed", isStateChange: true)
+//   sendEvent(name: "button", value: "pushed", isStateChange: true, data: [buttonNumber: 1])
 }
 
 def on() {
